@@ -1136,6 +1136,22 @@ describe('enhancePropTypesProp', () => {
       expect(defaultValue?.detail).toBeUndefined();
     });
 
+    it('should separate the items of a short array with a single space', () => {
+      const component = createTestComponent(createDefaultValue("['array', 'optional']"));
+
+      const { defaultValue } = extractPropDef(component);
+
+      expect(defaultValue?.summary).toBe("['array', 'optional']");
+    });
+
+    it('should separate the items of a nested short array with a single space', () => {
+      const component = createTestComponent(createDefaultValue('[1, [2, 3]]'));
+
+      const { defaultValue } = extractPropDef(component);
+
+      expect(defaultValue?.summary).toBe('[1, [2, 3]]');
+    });
+
     it('should support long array', () => {
       const component = createTestComponent(
         createDefaultValue(
@@ -1200,7 +1216,7 @@ describe('enhancePropTypesProp', () => {
 
         const { defaultValue } = extractPropDef(component, [1, 2, 3]);
 
-        expect(defaultValue?.summary).toBe('[1,    2,    3]');
+        expect(defaultValue?.summary).toBe('[1, 2, 3]');
         expect(defaultValue?.detail).toBeUndefined();
       });
 

@@ -309,7 +309,7 @@ describe('enhanceTypeScriptProp', () => {
 
         const { defaultValue } = extractPropDef(component, [1, 2, 3]);
 
-        expect(defaultValue?.summary).toBe('[1,    2,    3]');
+        expect(defaultValue?.summary).toBe('[1, 2, 3]');
         expect(defaultValue?.detail).toBeUndefined();
       });
 
