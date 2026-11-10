@@ -87,6 +87,24 @@ it('resolves the component of a Svelte CSF file with a member expression of a na
   });
 });
 
+it('resolves the component of a Svelte CSF file with a member expression of a namespace a barrel exports', async () => {
+  expect(
+    await resolveStoryComponent(entryFor('svelte-csf/namespace-export.stories.svelte'))
+  ).toEqual({
+    componentPath: join(fixtures, 'barrels/Button.svelte'),
+    exportName: 'Button',
+    name: 'Button',
+  });
+});
+
+it('resolves an import that another module writes from that module, not the story file', async () => {
+  expect(await resolveStoryComponent(entryFor('nested/Button.stories.ts'))).toEqual({
+    componentPath: join(fixtures, 'barrels/Button.svelte'),
+    exportName: 'default',
+    name: 'Button',
+  });
+});
+
 it('reports an unresolved component import', async () => {
   await expect(resolveStoryComponent(entryFor('unresolved/missing.stories.ts'))).rejects.toThrow(
     'Could not resolve `./Missing.svelte` export `default`'
@@ -108,6 +126,7 @@ it.each([
   'star-svelte',
   'module-svelte',
   'js-extension',
+  'namespace-export',
 ])('resolves a plain CSF component through the %s barrel', async (barrel) => {
   expect(await resolveStoryComponent(entryFor(`barrels/${barrel}.stories.ts`))).toEqual({
     componentPath: join(fixtures, 'barrels/Button.svelte'),
