@@ -58,13 +58,11 @@ function generateMultilineArrayCode(ast: any): string {
 }
 
 function generateCompactArrayCode(ast: any): string {
-  let result = generateCode(ast, true);
-
-  // escodegen add extra an extra before the opening bracket of a compact array that contains primitive values.
-  // Fix it until a better solution is found.
-  if (result.startsWith('[    ')) {
-    result = result.replace('[    ', '[');
-  }
-
-  return result;
+  return `[${ast.elements
+    .map((element: any) =>
+      element.type === 'ArrayExpression'
+        ? generateCompactArrayCode(element)
+        : generateCode(element, true)
+    )
+    .join(', ')}]`;
 }
