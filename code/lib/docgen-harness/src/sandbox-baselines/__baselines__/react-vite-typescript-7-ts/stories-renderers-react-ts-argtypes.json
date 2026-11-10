@@ -5,7 +5,7 @@
       "name": "arrayOptional",
       "table": {
         "defaultValue": {
-          "summary": "['array',    'optional']"
+          "summary": "['array', 'optional']"
         },
         "type": {
           "summary": "string[]"
@@ -1136,7 +1136,7 @@
           "name": "arrayOptional",
           "table": {
             "defaultValue": {
-              "summary": "['array',    'optional']"
+              "summary": "['array', 'optional']"
             },
             "type": {
               "summary": "string[]"
@@ -1437,7 +1437,7 @@
           "name": "arrayOptional",
           "table": {
             "defaultValue": {
-              "summary": "['array',    'optional']"
+              "summary": "['array', 'optional']"
             },
             "type": {
               "summary": "string[]"
@@ -2042,7 +2042,7 @@
           "name": "arrayOfComplexObject",
           "table": {
             "defaultValue": {
-              "summary": "[{        text: 'foo',        value: 'bar'    }]"
+              "summary": "[{    text: 'foo',    value: 'bar'}]"
             },
             "type": {
               "summary": "ItemInterface[]"
@@ -2059,7 +2059,7 @@
           "name": "arrayOfPrimitive",
           "table": {
             "defaultValue": {
-              "summary": "['foo',    'bar']"
+              "summary": "['foo', 'bar']"
             },
             "type": {
               "summary": "string[]"
@@ -2519,7 +2519,7 @@
           "name": "tupleOfPrimitive",
           "table": {
             "defaultValue": {
-              "summary": "['string value',    5]"
+              "summary": "['string value', 5]"
             },
             "type": {
               "summary": "[string, number]"
