@@ -7,6 +7,7 @@ import {
   createModuleResolver,
   getStoryImportPathFromEntry,
   jsTsSourceExtensions,
+  resolveImportedNamespace,
 } from 'storybook/internal/common';
 import {
   type ESTree as E,
@@ -36,7 +37,6 @@ export interface ResolvedSvelteComponent {
   name: string;
 }
 
-const resolveMetaComponent = createMetaComponentResolver({ extensions: ['.svelte'] });
 const moduleResolver = createModuleResolver({
   extensions: ['.svelte', ...jsTsSourceExtensions],
   // TypeScript projects import `./index.ts` as `./index.js`, as SvelteKit's packaging requires.
@@ -45,6 +45,10 @@ const moduleResolver = createModuleResolver({
   conditionNames: ['svelte', 'import', 'module', 'default'],
   tsconfig: 'auto',
 });
+
+// Core and this module use one resolver, so a barrel that core follows lands on the same file that
+// `followExport` reads.
+const resolveMetaComponent = createMetaComponentResolver({ resolver: moduleResolver });
 
 function resolveImport(fromFile: string, specifier: string): string | undefined {
   try {
@@ -144,7 +148,15 @@ function moduleProgram(filePath: string) {
 }
 
 function locate(storyPath: string, specifier: string, exportName: string, name: string) {
-  const filePath = resolveImport(storyPath, specifier);
+  return locateIn(resolveImport(storyPath, specifier), specifier, exportName, name);
+}
+
+function locateIn(
+  filePath: string | undefined,
+  specifier: string,
+  exportName: string,
+  name: string
+) {
   const componentPath = filePath && followExport(filePath, exportName);
   if (!componentPath) {
     throw new Error(`Could not resolve \`${specifier}\` export \`${exportName}\``);
@@ -191,6 +203,23 @@ export async function resolveStoryComponent(
         return locate(
           storyPath,
           String(statement.source.value),
+          component.property.name,
+          component.property.name
+        );
+      }
+
+      // A named import of a namespace a barrel exports, as in `export * as UI from './ui'`, is the
+      // same shortcut one module further.
+      const namespace = resolveImportedNamespace(
+        moduleResolver,
+        storyPath,
+        String(statement.source.value),
+        importedName(specifier)
+      );
+      if (namespace) {
+        return locateIn(
+          namespace.path,
+          namespace.importId,
           component.property.name,
           component.property.name
         );
@@ -246,8 +275,10 @@ export async function resolveStoryComponent(
     }
     return undefined;
   }
-  const { importId, exportName, localName } = resolved.component;
-  return importId ? locate(storyPath, importId, exportName, localName) : undefined;
+  // `path` is resolved in the module that wrote `importId`, which is not the story file when core
+  // followed the component through another module, such as a barrel's `export * as`.
+  const { importId, path, exportName, localName } = resolved.component;
+  return importId ? locateIn(path, importId, exportName, localName) : undefined;
 }
 
 // The components a meta lists in `subcomponents`, by the name it lists them under. One that does
